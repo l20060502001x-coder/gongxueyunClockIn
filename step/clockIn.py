@@ -33,7 +33,8 @@ def clock_in(force_type: dict[str, str] = None) -> dict[str, str]:
         if last_checkin_time.date() == current_time.date():
             log = f"今日[{display_type}]卡已打，无需重复打卡"
             logger.info(log)
-            return {"title": "工学云签到任务通知", "content": log}
+            # return {"title": "工学云签到任务通知", "content": log}
+            return {"result": True, "title": "工学云签到任务通知", "content": log}
 
     user_name = desensitize_name(UserInfoManager.get("nikeName"))
     logger.info(f"用户 {user_name} 开始 {display_type} 打卡")
@@ -54,8 +55,10 @@ def clock_in(force_type: dict[str, str] = None) -> dict[str, str]:
         logger.info("打卡成功")
         # content = f"签到账号：{ConfigManager.get("user", "phone")}\n签到地点：{ConfigManager.get("clockIn", "location", "address")}"
         content = f"签到账号：{ConfigManager.get('user', 'phone')}\n签到地点：{ConfigManager.get('clockIn', 'location', 'address')}"
-        return {"title": "工学云签到成功通知", "content": content}
+        # return {"title": "工学云签到成功通知", "content": content}
+        return {"result": True, "title": "工学云签到成功通知", "content": content}
     else:
         # logger.warning(f"打卡失败：{success.get("message")}")
         logger.warning(f"打卡失败：{success.get('message')}")
-        return {"title": "fail", "content": success.get("message")}
+        # return {"title": "fail", "content": success.get("message")}
+        return {"result": False, "title": "fail", "content": success.get("message")}
