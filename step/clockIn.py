@@ -1,5 +1,5 @@
 import logging
-from datetime import datetime
+from datetime import datetime, timezone, timedelta
 
 from manager.ConfigManager import ConfigManager
 from manager.UserInfoManager import UserInfoManager
@@ -8,11 +8,16 @@ from util.HelperFunctions import get_checkin_type, desensitize_name
 
 logger = logging.getLogger(__name__)
 
+# 北京时区 (UTC+8)
+BEIJING_TZ = timezone(timedelta(hours=8))
+
 
 def clock_in(force_type: dict[str, str] = None) -> dict[str, str]:
     logging.info("执行签到打卡")
 
-    current_time = datetime.now()
+    # current_time = datetime.now()
+    # GitHub Actions 环境使用 UTC 时区，需显式使用北京时间进行日期比较
+    current_time = datetime.now(BEIJING_TZ).replace(tzinfo=None)
 
     # 获取打卡类型：优先使用传入的强制类型，否则从配置读取
     if force_type:
