@@ -69,6 +69,42 @@ def desensitize_name(name: str) -> str:
         return f"{name[0]}{'*' * (n - 2)}{name[-1]}"
 
 
+def desensitize_phone(phone: str) -> str:
+    """
+    对手机号进行脱敏处理，保留前3位和后4位，中间用****替换。
+
+    Args:
+        phone (str): 待脱敏的手机号。
+
+    Returns:
+        str: 脱敏后的手机号。
+    """
+    phone = str(phone).strip()
+    if len(phone) < 7:
+        return phone[:3] + "***"
+    return phone[:3] + "****" + phone[-4:]
+
+
+def desensitize_address(address: str) -> str:
+    """
+    对地址进行脱敏处理，保留省市区，隐藏详细地址。
+
+    Args:
+        address (str): 待脱敏的地址，格式如 "四川省 · 成都市 · 高新区 · 天府大道北段1480号1号楼"。
+
+    Returns:
+        str: 脱敏后的地址。
+    """
+    address = str(address).strip()
+    if " · " in address:
+        parts = address.split(" · ")
+        if len(parts) >= 3:
+            return " · ".join(parts[:3]) + " · ***"
+        elif len(parts) == 2:
+            return parts[0] + " · " + parts[1] + " · ***"
+    return "***"
+
+
 def is_workday_realtime() -> bool:
     """
     实时判断今天是否为法定工作日。

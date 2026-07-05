@@ -5,6 +5,7 @@ from manager.ConfigManager import ConfigManager
 from manager.UserInfoManager import UserInfoManager
 from util.ApiService import ApiService
 from util.HelperFunctions import get_checkin_type, desensitize_name
+from util.EmailService import send_clockin_notification
 
 logger = logging.getLogger(__name__)
 
@@ -45,12 +46,34 @@ def clock_in(force_type: dict[str, str] = None) -> dict[str, str]:
             if last_type == "END":
                 log = f"今日上下班卡均已打完，无需重复打卡"
                 logger.info(log)
+                # 发送邮件通知（手机号和地址已脱敏）
+                try:
+                    send_clockin_notification(
+                        phone=ConfigManager.get('user', 'phone'),
+                        location=ConfigManager.get('clockIn', 'location', 'address'),
+                        checkin_type=display_type,
+                        success=True,
+                        message=log
+                    )
+                except Exception as e:
+                    logger.error(f"发送邮件通知失败: {e}")
                 return {"result": True, "title": "工学云签到任务通知", "content": log}
             # 如果最近一次打卡类型与当前相同，跳过
             if last_type == checkin_type:
                 log = f"今日[{display_type}]卡已打，无需重复打卡"
                 logger.info(log)
                 # return {"title": "工学云签到任务通知", "content": log}
+                # 发送邮件通知（手机号和地址已脱敏）
+                try:
+                    send_clockin_notification(
+                        phone=ConfigManager.get('user', 'phone'),
+                        location=ConfigManager.get('clockIn', 'location', 'address'),
+                        checkin_type=display_type,
+                        success=True,
+                        message=log
+                    )
+                except Exception as e:
+                    logger.error(f"发送邮件通知失败: {e}")
                 return {"result": True, "title": "工学云签到任务通知", "content": log}
     else:
         logger.info(f"最近打卡信息为空，执行打卡")
@@ -75,9 +98,34 @@ def clock_in(force_type: dict[str, str] = None) -> dict[str, str]:
         # content = f"签到账号：{ConfigManager.get("user", "phone")}\n签到地点：{ConfigManager.get("clockIn", "location", "address")}"
         content = f"签到账号：{ConfigManager.get('user', 'phone')}\n签到地点：{ConfigManager.get('clockIn', 'location', 'address')}"
         # return {"title": "工学云签到成功通知", "content": content}
+        
+        # 发送邮件通知（手机号和地址已脱敏）
+        try:
+            send_clockin_notification(
+                phone=ConfigManager.get('user', 'phone'),
+                location=ConfigManager.get('clockIn', 'location', 'address'),
+                checkin_type=display_type,
+                success=True
+            )
+        except Exception as e:
+            logger.error(f"发送邮件通知失败: {e}")
+        
         return {"result": True, "title": "工学云签到成功通知", "content": content}
     else:
         # logger.warning(f"打卡失败：{success.get("message")}")
         logger.warning(f"打卡失败：{success.get('message')}")
         # return {"title": "fail", "content": success.get("message")}
+        
+        # 发送邮件通知（手机号和地址已脱敏）
+        try:
+            send_clockin_notification(
+                phone=ConfigManager.get('user', 'phone'),
+                location=ConfigManager.get('clockIn', 'location', 'address'),
+                checkin_type=display_type,
+                success=False,
+                message=success.get('message', '未知错误')
+            )
+        except Exception as e:
+            logger.error(f"发送邮件通知失败: {e}")
+        
         return {"result": False, "title": "fail", "content": success.get("message")}
