@@ -1,3 +1,8 @@
+import datetime
+# 7月20日之前不打卡
+if datetime.date.today() < datetime.date(2026, 7, 20):
+    print(f"当前日期 {datetime.date.today()}，实习从2026-07-20开始，跳过打卡")
+    exit(0)
 import json
 import logging
 import os
